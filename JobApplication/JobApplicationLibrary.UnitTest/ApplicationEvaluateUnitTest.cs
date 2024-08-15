@@ -83,7 +83,7 @@ namespace JobApplicationLibrary.UnitTest
             var result = evaluator.Evaluate(form);
 
             //assert
-            Assert.Equal(ApplicationResult.AutoAccepted,result);
+            Assert.Equal(ApplicationResult.AutoAccepted, result);
         }
 
         [Fact]
@@ -105,16 +105,17 @@ namespace JobApplicationLibrary.UnitTest
             var result = evaluator.Evaluate(form);
 
             //assert
-            Assert.Equal(ApplicationResult.TransferredToHR,result);
+            Assert.Equal(ApplicationResult.TransferredToHR, result);
         }
 
         [Fact]
-        public void Application_WithOfficeLocation_TransferredToCTO() 
-        { 
+        public void Application_WithOfficeLocation_TransferredToCTO()
+        {
             //assert
-            var mockValidator= new Mock<IIdentityValidator>();
+            var mockValidator = new Mock<IIdentityValidator>();
             mockValidator.Setup(x => x.CountryDataProvider.CountryData.Country).Returns("SPAIN");
-            var evaluator= new ApplicationEvaluator(mockValidator.Object);
+           
+            var evaluator = new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
             {
                 Applicant = new Applicant() { Age = 20 },
@@ -123,8 +124,31 @@ namespace JobApplicationLibrary.UnitTest
             var result = evaluator.Evaluate(form);
 
             //assert
-            Assert.Equal(ApplicationResult.TransferredToCTO,result);
+            Assert.Equal(ApplicationResult.TransferredToCTO, result);
 
         }
+
+        [Fact]
+        public void Application_WhenAgeIsOver50_ValidationModeToDetailse()
+        {
+            //assert
+            var mockValidator = new Mock<IIdentityValidator>();
+            //mockValidator.SetupAllProperties();// bu komut satırı ,özelleştirilmiş setup ayarının mutlakaüstünde olmalı 
+            mockValidator.Setup(x => x.CountryDataProvider.CountryData.Country).Returns("SPAIN");
+          
+            var evaluator = new ApplicationEvaluator(mockValidator.Object);
+            var form = new JobApplication()
+            {
+                Applicant = new Applicant() { Age = 51 },
+            };
+            //act
+            var result = evaluator.Evaluate(form);
+
+            //assert
+            Assert.Equal(ValidationMode.Detailed, mockValidator.Object.ValidationMode);
+        }
+
     }
 }
+
+
