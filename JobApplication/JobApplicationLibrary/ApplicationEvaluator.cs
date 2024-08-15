@@ -20,7 +20,7 @@ namespace JobApplicationLibrary
             if (form.Applicant.Age < minAge)
                 return ApplicationResult.AutoRejected;
 
-            if (_identityValidator.Country != "TÜRKİYE")
+            if (_identityValidator.CountryDataProvider.CountryData.Country != "TÜRKİYE")
                 return ApplicationResult.TransferredToCTO;
 
             var validIdentity =  _identityValidator.IsValid(form.Applicant.IdentityNumber);   

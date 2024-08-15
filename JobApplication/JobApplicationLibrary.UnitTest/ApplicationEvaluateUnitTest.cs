@@ -6,6 +6,11 @@ using static JobApplicationLibrary.ApplicationEvaluator;
 
 namespace JobApplicationLibrary.UnitTest
 {
+
+    //MockBehaviour
+    //var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Strict);
+    //var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Loose);
+    //var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Default);
     public class ApplicationEvaluateUnitTest
     {
 
@@ -36,9 +41,11 @@ namespace JobApplicationLibrary.UnitTest
         public void Application_WhenNoTechStack_TransferredToAutoRejected()
         {
             //arrange
-            var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Loose);
+            var mockValidator = new Mock<IIdentityValidator>();
+            mockValidator.DefaultValue = DefaultValue.Mock;
             mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(true);
-            mockValidator.Setup(x => x.Country).Returns("TÜRKİYE");
+            mockValidator.Setup(x => x.CountryDataProvider.CountryData.Country).Returns("TÜRKİYE");
+
 
             var evaluator = new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
@@ -59,8 +66,10 @@ namespace JobApplicationLibrary.UnitTest
         public void Application_WhenTechStackOver75Percent_TransferredToAutoAccepted()
         {
             //arrange
-            var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Loose);
-            mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(true); mockValidator.Setup(x => x.Country).Returns("TÜRKİYE");
+            var mockValidator = new Mock<IIdentityValidator>();
+            mockValidator.DefaultValue = DefaultValue.Mock;
+            mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(true);
+            mockValidator.Setup(x => x.CountryDataProvider.CountryData.Country).Returns("TÜRKİYE");
 
             var evaluator = new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
@@ -81,9 +90,10 @@ namespace JobApplicationLibrary.UnitTest
         public void Application_WhenIdentityNumberIsInValid_TransferredToHR()
         {
             //arrange
-            var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Loose);
+            var mockValidator = new Mock<IIdentityValidator>();
+            mockValidator.DefaultValue = DefaultValue.Mock;
             mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(false);
-            mockValidator.Setup(x => x.Country).Returns("TÜRKİYE");
+            mockValidator.Setup(x => x.CountryDataProvider.CountryData.Country).Returns("TÜRKİYE");
 
             var evaluator = new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
@@ -102,8 +112,8 @@ namespace JobApplicationLibrary.UnitTest
         public void Application_WithOfficeLocation_TransferredToCTO() 
         { 
             //assert
-            var mockValidator= new Mock<IIdentityValidator>(MockBehavior.Loose);
-            mockValidator.Setup(x => x.Country).Returns("SPAIN");
+            var mockValidator= new Mock<IIdentityValidator>();
+            mockValidator.Setup(x => x.CountryDataProvider.CountryData.Country).Returns("SPAIN");
             var evaluator= new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
             {
