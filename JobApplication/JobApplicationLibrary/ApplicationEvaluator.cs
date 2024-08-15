@@ -1,21 +1,47 @@
 ﻿using JobApplicationLibrary.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using JobApplicationLibrary.Services;
 
 namespace JobApplicationLibrary
 {
     public class ApplicationEvaluator
     {
         private const int minAge = 18;
+        private const int autoAcceptedYearsOfExperiences = 15;
+        private List<string> techStackList = new() { "C#", "RabbitMQ", "Microservice", "VisualStudio" };
+        private readonly IdentityValidator _identityValidator;
+
+        public ApplicationEvaluator()
+        {
+            _identityValidator = new();
+        }
+
         public ApplicationResult Evaluate(JobApplication form)
         {
             if (form.Applicant.Age < minAge)
                 return ApplicationResult.AutoRejected;
 
+            var validIdentity = _identityValidator.IsValid(form.Applicant.IdentityNumber);
+
+            if (!validIdentity)
+                return ApplicationResult.TransferredToHR;
+
+            var sr = GetTechStackSimilarityRate(form.TechStackList);
+
+            if (sr < 25)
+                return ApplicationResult.AutoRejected;
+
+            if (form.YearsOfExperience >= autoAcceptedYearsOfExperiences && sr > 75)
+                return ApplicationResult.AutoAccepted;
+
             return ApplicationResult.AutoAccepted;
+        }
+
+        private int GetTechStackSimilarityRate(List<string> techStacks)
+        {
+            var matechedCount = techStacks
+                .Where(i => techStackList.Contains(i, StringComparer.OrdinalIgnoreCase))
+                .Count();
+            return (int)((double)(matechedCount) / techStackList.Count) * 100;
         }
         public enum ApplicationResult
         {
