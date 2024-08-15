@@ -28,7 +28,7 @@ namespace JobApplicationLibrary.UnitTest
 
             //Assert
 
-            Assert.Equal(result, ApplicationResult.AutoRejected);
+            Assert.Equal(ApplicationResult.AutoRejected, result);
         }
 
         [Fact]
@@ -36,8 +36,9 @@ namespace JobApplicationLibrary.UnitTest
         public void Application_WhenNoTechStack_TransferredToAutoRejected()
         {
             //arrange
-            var mockValidator = new Mock<IIdentityValidator>();
+            var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Loose);
             mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(true);
+            mockValidator.Setup(x => x.Country).Returns("TÜRKİYE");
 
             var evaluator = new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
@@ -50,7 +51,7 @@ namespace JobApplicationLibrary.UnitTest
             var result = evaluator.Evaluate(form);
 
             //assert
-            Assert.Equal(result, ApplicationResult.AutoRejected);
+            Assert.Equal(ApplicationResult.AutoRejected, result);
         }
 
         [Fact]
@@ -58,42 +59,62 @@ namespace JobApplicationLibrary.UnitTest
         public void Application_WhenTechStackOver75Percent_TransferredToAutoAccepted()
         {
             //arrange
-            var mockValidator = new Mock<IIdentityValidator>();
-            mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(true);
+            var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Loose);
+            mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(true); mockValidator.Setup(x => x.Country).Returns("TÜRKİYE");
 
             var evaluator = new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
             {
                 Applicant = new Applicant() { Age = 45, IdentityNumber = "xyz" },
                 TechStackList = new List<string> { "C#", "RabbitMQ", "Microservice", "VisualStudio" },
-                YearsOfExperience = 16
+                YearsOfExperience = 16,
             };
 
             //act
             var result = evaluator.Evaluate(form);
 
             //assert
-            Assert.Equal(result, ApplicationResult.AutoAccepted);
+            Assert.Equal(ApplicationResult.AutoAccepted,result);
         }
 
         [Fact]
         public void Application_WhenIdentityNumberIsInValid_TransferredToHR()
         {
             //arrange
-            var mockValidator = new Mock<IIdentityValidator>();
+            var mockValidator = new Mock<IIdentityValidator>(MockBehavior.Loose);
             mockValidator.Setup(x => x.IsValid(It.IsAny<string>())).Returns(false);
+            mockValidator.Setup(x => x.Country).Returns("TÜRKİYE");
 
             var evaluator = new ApplicationEvaluator(mockValidator.Object);
             var form = new JobApplication()
             {
-                Applicant = new Applicant() { Age = 20 }
+                Applicant = new Applicant() { Age = 20 },
             };
 
             //act
             var result = evaluator.Evaluate(form);
 
             //assert
-            Assert.Equal(result, ApplicationResult.TransferredToHR);
+            Assert.Equal(ApplicationResult.TransferredToHR,result);
+        }
+
+        [Fact]
+        public void Application_WithOfficeLocation_TransferredToCTO() 
+        { 
+            //assert
+            var mockValidator= new Mock<IIdentityValidator>(MockBehavior.Loose);
+            mockValidator.Setup(x => x.Country).Returns("SPAIN");
+            var evaluator= new ApplicationEvaluator(mockValidator.Object);
+            var form = new JobApplication()
+            {
+                Applicant = new Applicant() { Age = 20 },
+            };
+            //act
+            var result = evaluator.Evaluate(form);
+
+            //assert
+            Assert.Equal(ApplicationResult.TransferredToCTO,result);
+
         }
     }
 }
