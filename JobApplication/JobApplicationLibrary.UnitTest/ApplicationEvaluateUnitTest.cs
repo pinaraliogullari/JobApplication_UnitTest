@@ -135,7 +135,7 @@ namespace JobApplicationLibrary.UnitTest
         }
 
         [Fact]
-        public void Application_WhenAgeIsOver50_ValidationModeToDetailse()
+        public void Application_WhenAgeIsOver50_ValidationModeToDetailed()
         {
             //arrange
             var mockValidator = new Mock<IIdentityValidator>();
@@ -153,6 +153,25 @@ namespace JobApplicationLibrary.UnitTest
             //assert
             //Assert.Equal(ValidationMode.Detailed, mockValidator.Object.ValidationMode);
             mockValidator.Object.ValidationMode.Should().Be(ValidationMode.Detailed);
+        }
+        [Fact]
+        public void Application_WhenAgeIsUnder50_ValidationModeToQuick()
+        {
+            //arrange
+            var mockValidator = new Mock<IIdentityValidator>();
+            mockValidator.SetupAllProperties();
+
+            mockValidator.Setup(x => x.CountryDataProvider.CountryData.Country).Returns("SPAIN");
+            var evaluator = new ApplicationEvaluator(mockValidator.Object);
+            var form = new JobApplication()
+            {
+                Applicant = new Applicant() { Age = 40 },
+            };
+            //act
+            var result = evaluator.Evaluate(form);
+
+           //assert
+            mockValidator.Object.ValidationMode.Should().Be(ValidationMode.Quick);
         }
 
         [Fact]
