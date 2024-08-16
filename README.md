@@ -1,4 +1,5 @@
-# JobApplicationUnitTest
+# Job Application 
 
--- packages
-- 
+- xUnit
+- Moq
+- FluentAssertions
